@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — Stackly Vault</title>
+<meta name="description" content="Manage users, documents, signatures, billing, and audit logs across your Stackly Vault organization.">
+<link rel="icon" href="./stackly.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+/* ============================================================
+   STACKLY VAULT — Design system v2
+   "declassified paper" — off-white / parchment surfaces
+   + indigo accent, warm red as rare alert accent only.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root{
+  /* color */
+  --bg:       #F8F6F1;   /* page background — warm off-white */
+  --bg-soft:  #EFEBFA;   /* alternate section tint — soft indigo-white */
+  --surface:  #FFFFFF;   /* card / surface background */
+  --surface-2:#F1EEFB;   /* icon chips, secondary surface */
+  --surface-3:#E7E1F6;   /* stacked-card shadow layer, deeper tint */
+
+  --ink:      #1E1B2E;   /* primary dark text (deep indigo-black) */
+  --ink-2:    #FFFFFF;   /* card surface (kept for compatibility — same as --surface) */
+  --mist:     #F1EEFB;   /* light indigo-tinted surface (icon boxes, chips) */
+  --mist-2:   #E7E1F6;   /* deeper tint (stack shadows, borders) */
+  --paper:    #F8F6F1;   /* alias of --bg, kept for compatibility */
+  --paper-2:  #EFEBFA;   /* alias of --bg-soft */
+
+  --manila:   #4F46E5;   /* PRIMARY ACCENT — indigo-600 */
+  --manila-2: #6D5EF5;   /* accent hover / lighter — indigo-500 */
+  --indigo:   #4F46E5;
+  --indigo-2: #6D5EF5;
+  --on-accent:#FFFFFF;   /* text placed on top of the accent color */
+
+  --redline:  #D6483C;   /* rare alert accent */
+  --slate:    #6B7280;   /* muted text */
+  --slate-2:  #8B8FA3;   /* lighter muted text */
+  --line:     rgba(30,27,60,0.12);
+  --line-soft:rgba(30,27,60,0.08);
+
+  /* type */
+  --serif: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* scale */
+  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.9rem);
+  --step-0:  clamp(1rem, 0.95rem + 0.25vw, 1.1rem);
+  --step-1:  clamp(1.2rem, 1.1rem + 0.4vw, 1.4rem);
+  --step-2:  clamp(1.5rem, 1.3rem + 0.8vw, 1.9rem);
+  --step-3:  clamp(1.9rem, 1.6rem + 1.4vw, 2.6rem);
+  --step-4:  clamp(2.4rem, 1.9rem + 2.2vw, 3.6rem);
+  --step-5:  clamp(3rem,   2.2rem + 3.6vw, 5.2rem);
+
+  --radius-s: 6px;
+  --radius-m: 12px;
+  --radius-l: 22px;
+  --ease: cubic-bezier(.16,.84,.44,1);
+  --dur: .6s;
+
+  --container: 1240px;
+  --shadow-card: 0 1px 2px rgba(30,27,60,.04), 0 8px 24px -12px rgba(30,27,60,.12);
+  --shadow-lift: 0 20px 45px -20px rgba(30,27,60,.28);
+}
+
+*,*::before,*::after{ box-sizing: border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: var(--step-0);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+ul{ list-style:none; margin:0; padding:0; }
+button{ font-family:inherit; }
+h1,h2,h3,h4{ font-family: var(--serif); margin:0; font-weight:600; line-height:1.08; letter-spacing:-0.01em; color: var(--ink); }
+p{ margin:0; }
+
+::selection{ background: var(--manila); color: #fff; }
+
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-track{ background: var(--bg); }
+::-webkit-scrollbar-thumb{ background: var(--surface-3); border-radius:10px; }
+::-webkit-scrollbar-thumb:hover{ background: var(--manila); }
+
+:focus-visible{ outline: 2px solid var(--manila); outline-offset:3px; }
+
+.container{ max-width: var(--container); margin:0 auto; padding: 0 32px; }
+
+/* .paper-section = subtle alternate tint for visual rhythm (both are light now) */
+.paper-section{ background: var(--bg-soft); color: var(--ink); }
+.paper-section h1,.paper-section h2,.paper-section h3{ color: var(--ink); }
+.paper-section .eyebrow{ color: var(--indigo); }
+.paper-section .muted{ color: var(--slate); }
+
+.muted{ color: var(--slate); }
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:var(--step--1); color: var(--indigo);
+  font-weight:600;
+}
+.eyebrow::before{
+  content:''; width:16px; height:2px; background: var(--manila); display:inline-block;
+}
+
+/* ---------- custom cursor ---------- */
+.cursor-dot{
+  position:fixed; width:8px; height:8px; border-radius:50%; background:var(--manila);
+  pointer-events:none; z-index:9998; transform:translate(-50%,-50%);
+  display:none;
+}
+.cursor-ring{
+  position:fixed; width:34px; height:34px; border-radius:50%; border:1px solid var(--manila);
+  pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition: width .25s var(--ease), height .25s var(--ease), opacity .25s;
+  display:none;
+}
+@media (hover:hover) and (pointer:fine){
+  .cursor-dot, .cursor-ring{ display:block; }
+}
+
+/* ---------- background canvas ---------- */
+.grid-field{
+  position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0;
+}
+.grid-field canvas{ position:absolute; inset:0; width:100%; height:100%; opacity:.7; }
+.grid-field .glow{
+  position:absolute; width:60vw; height:60vw; border-radius:50%;
+  background: radial-gradient(circle, rgba(79,70,229,.14), transparent 65%);
+  filter: blur(10px);
+}
+.grid-field .glow.a{ top:-20%; left:-10%; }
+.grid-field .glow.b{ bottom:-25%; right:-10%; background: radial-gradient(circle, rgba(214,72,60,.08), transparent 65%); }
+
+/* ---------- scroll reveal states (JS toggles .in-view) ---------- */
+.reveal{ opacity:0; transform:translateY(16px); transition:opacity .7s var(--ease), transform .7s var(--ease); }
+.reveal.in-view{ opacity:1; transform:translateY(0); }
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:12px 20px; border-radius:999px; border:1px solid transparent;
+  font-size:var(--step--1); font-weight:600; cursor:pointer;
+  transition: transform .25s var(--ease), background .25s var(--ease), border-color .25s var(--ease);
+}
+.btn svg{ flex:none; }
+.btn-primary{ background:var(--manila); color:var(--on-accent); }
+.btn-primary:hover{ background:var(--manila-2); }
+.btn-ghost{ background:transparent; color:var(--ink); border-color:var(--line); }
+.btn-ghost:hover{ border-color:var(--manila); color:var(--manila); }
+.btn-sm{ padding:9px 16px; font-size:.82rem; }
+
+.icon-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
+  background:var(--surface); color:var(--ink); cursor:pointer;
+  transition: border-color .2s var(--ease), color .2s var(--ease);
+}
+.icon-btn:hover{ border-color:var(--manila); color:var(--manila); }
+
+/* ---------- shell layout ---------- */
+.dash-wrap{ display:flex; min-height:100vh; position:relative; }
+
+.dash-scrim{
+  position:fixed; inset:0; background:rgba(30,27,60,.4); z-index:39;
+  opacity:0; pointer-events:none; transition:opacity .3s var(--ease);
+}
+.dash-scrim.show{ opacity:1; pointer-events:auto; }
+
+/* ---------- sidebar ---------- */
+.dash-sidebar{
+  width:264px; flex:none; background:var(--surface);
+  border-right:1px solid var(--line); display:flex; flex-direction:column;
+  padding:24px 18px; position:sticky; top:0; height:100vh; z-index:40;
+}
+.sidebar-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; }
+.sidebar-head .logo img{ height:28px; width:auto; }
+.sidebar-close{ display:none; }
+
+.user-card{
+  display:flex; align-items:center; gap:12px;
+  padding:12px; margin-bottom:18px; border-radius:var(--radius-m);
+  background:var(--surface-2);
+}
+.user-card img{ width:38px; height:38px; border-radius:50%; object-fit:cover; }
+.user-card .u-name{ font-weight:700; font-size:.92rem; }
+.user-card .u-email{ color:var(--slate); font-size:.76rem; }
+
+.dash-nav{ display:flex; flex-direction:column; gap:2px; flex:1; }
+.dash-nav a{
+  display:flex; align-items:center; gap:12px;
+  padding:11px 14px; border-radius:var(--radius-s);
+  color:var(--slate); font-weight:600; font-size:.92rem;
+  transition: background .2s var(--ease), color .2s var(--ease);
+}
+.dash-nav a svg{ flex:none; opacity:.85; }
+.dash-nav a:hover{ background:var(--surface-2); color:var(--ink); }
+.dash-nav a.active{ background:var(--manila); color:var(--on-accent); }
+.dash-nav a.active svg{ opacity:1; }
+
+.sidebar-foot{ padding-top:16px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:14px; }
+.storage-meter .bar{ height:6px; border-radius:99px; background:var(--surface-3); margin:6px 0; overflow:hidden; }
+.storage-meter .bar span{ display:block; height:100%; background:var(--manila); border-radius:99px; }
+.logout-link{ display:flex; align-items:center; gap:10px; color:var(--slate); font-weight:600; font-size:.9rem; }
+.logout-link:hover{ color:var(--redline); }
+
+/* ---------- main / topbar ----------
+   min-width:0 on the flex item is the key fix: without it, a flex
+   child refuses to shrink below its content's intrinsic width, so
+   any fixed-width descendant (e.g. the old .dash-search min-width)
+   forces the whole row wider than the viewport. Because body has
+   overflow-x:hidden, that excess gets silently clipped instead of
+   scrolling — which is what caused cards to appear sliced off. */
+.dash-main{ flex:1; min-width:0; padding:26px 32px 60px; }
+
+.dash-topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; margin-bottom:26px; min-width:0;
+}
+.dash-topbar > div:first-child{ min-width:0; flex:1; display:flex; align-items:center; gap:14px; }
+.sidebar-open{ display:none; }
+.dash-search{
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface); border:1px solid var(--line); border-radius:999px;
+  padding:10px 16px; min-width:0; flex:1 1 200px; color:var(--slate);
+}
+.dash-search input{
+  border:none; outline:none; background:transparent; flex:1; min-width:0;
+  font-family:inherit; font-size:.92rem; color:var(--ink);
+}
+.dash-topbar-actions{ display:flex; align-items:center; gap:12px; flex:none; }
+.bell-btn{ position:relative; }
+.bell-dot{ position:absolute; top:8px; right:9px; width:7px; height:7px; border-radius:50%; background:var(--redline); }
+
+/* ---------- view switching ---------- */
+.dash-view{ display:none; }
+.dash-view.active{ display:block; }
+.dash-greet p{ color:var(--slate); margin-top:6px; }
+
+/* ---------- kpis ---------- */
+.kpi-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:24px; }
+.kpi-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m);
+  padding:20px; box-shadow:var(--shadow-card); min-width:0;
+}
+.kpi-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.kpi-ic{
+  width:36px; height:36px; border-radius:var(--radius-s);
+  background:var(--surface-2); color:var(--manila);
+  display:flex; align-items:center; justify-content:center;
+}
+.kpi-delta{ font-size:.78rem; font-weight:700; color:var(--slate); }
+.kpi-delta.up{ color:#1E9E6B; }
+.kpi-delta.down{ color:var(--redline); }
+.kpi-card b{ display:block; font-family:var(--serif); font-size:var(--step-3); font-weight:600; }
+.kpi-card span{ color:var(--slate); font-size:.86rem; }
+
+/* ---------- grids & panels ---------- */
+.dash-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:24px; }
+.panel{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m);
+  padding:22px; box-shadow:var(--shadow-card); margin-bottom:24px; min-width:0;
+}
+.panel:last-child{ margin-bottom:0; }
+.panel-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+.chart-box{ height:220px; min-width:0; }
+.chart-box > div{ min-width:0; }
+
+/* ---------- tables ---------- */
+.table-scroll{ overflow-x:auto; }
+.data-table{ width:100%; border-collapse:collapse; font-size:.9rem; }
+.data-table th{
+  text-align:left; padding:10px 12px; color:var(--slate); font-weight:600;
+  font-size:.78rem; text-transform:uppercase; letter-spacing:.03em;
+  border-bottom:1px solid var(--line);
+}
+.data-table td{ padding:13px 12px; border-bottom:1px solid var(--line-soft); vertical-align:middle; }
+.data-table tbody tr:hover{ background:var(--surface-2); }
+
+.row-file{ display:flex; align-items:center; gap:10px; font-weight:600; }
+.f-ic{
+  width:30px; height:30px; border-radius:var(--radius-s); background:var(--surface-2);
+  color:var(--manila); display:flex; align-items:center; justify-content:center; flex:none;
+}
+.row-actions{ display:flex; align-items:center; gap:6px; justify-content:flex-end; }
+.row-actions button{
+  width:32px; height:32px; border-radius:50%; border:1px solid transparent;
+  background:transparent; color:var(--slate); cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.row-actions button:hover{ background:var(--surface-2); color:var(--manila); }
+
+.status-pill{
+  display:inline-flex; align-items:center; padding:5px 12px; border-radius:999px;
+  font-size:.76rem; font-weight:700;
+}
+.status-pill.ok{ background:rgba(30,158,107,.12); color:#1E9E6B; }
+.status-pill.wait{ background:rgba(79,70,229,.1); color:var(--manila); }
+.status-pill.bad{ background:rgba(214,72,60,.12); color:var(--redline); }
+
+/* ---------- billing info rows ---------- */
+.info-row{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 0; border-bottom:1px solid var(--line-soft); font-size:.92rem; gap:12px;
+}
+.info-row:last-of-type{ border-bottom:none; }
+.info-row span:first-child{ color:var(--slate); }
+.info-row span:last-child{ font-weight:600; text-align:right; }
+
+/* ---------- settings form + toggles ---------- */
+.field{ margin-bottom:16px; display:flex; flex-direction:column; gap:6px; }
+.field label{ font-size:.82rem; font-weight:600; color:var(--slate); }
+.field input{
+  border:1px solid var(--line); border-radius:var(--radius-s); padding:11px 14px;
+  font-family:inherit; font-size:.92rem; color:var(--ink); background:var(--bg);
+  outline:none; transition:border-color .2s var(--ease); width:100%; min-width:0;
+}
+.field input:focus{ border-color:var(--manila); }
+.settings-form .btn{ margin-top:4px; }
+
+.toggle-row{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:14px 0; border-bottom:1px solid var(--line-soft);
+}
+.toggle-row:last-child{ border-bottom:none; }
+.toggle-row p{ font-weight:600; margin-bottom:2px; }
+.toggle-row span{ color:var(--slate); font-size:.82rem; }
+
+.switch{ position:relative; display:inline-block; width:44px; height:26px; flex:none; }
+.switch input{ opacity:0; width:0; height:0; }
+.switch .slider{
+  position:absolute; inset:0; background:var(--surface-3); border-radius:999px; cursor:pointer;
+  transition:background .25s var(--ease);
+}
+.switch .slider::before{
+  content:''; position:absolute; width:20px; height:20px; left:3px; top:3px;
+  background:#fff; border-radius:50%; transition:transform .25s var(--ease);
+  box-shadow:0 1px 3px rgba(30,27,60,.3);
+}
+.switch input:checked + .slider{ background:var(--manila); }
+.switch input:checked + .slider::before{ transform:translateX(18px); }
+
+/* ---------- toasts ---------- */
+#stacklyToasts{
+  position:fixed; top:20px; right:20px; z-index:10000;
+  display:flex; flex-direction:column; gap:10px; width:min(340px, calc(100vw - 40px));
+}
+.stackly-toast{
+  display:flex; align-items:flex-start; gap:12px;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m);
+  padding:14px 16px; box-shadow:var(--shadow-lift);
+  opacity:0; transform:translateX(20px); transition:opacity .35s var(--ease), transform .35s var(--ease);
+}
+.stackly-toast.show{ opacity:1; transform:translateX(0); }
+.stackly-toast .toast-icon{
+  width:24px; height:24px; border-radius:50%; flex:none;
+  background:rgba(30,158,107,.15); color:#1E9E6B;
+  display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.82rem;
+}
+.stackly-toast.error .toast-icon{ background:rgba(214,72,60,.15); color:var(--redline); }
+.toast-body{ flex:1; min-width:0; }
+.toast-title{ font-weight:700; font-size:.9rem; }
+.toast-msg{ color:var(--slate); font-size:.82rem; margin-top:2px; }
+.toast-close{
+  background:none; border:none; color:var(--slate); cursor:pointer; font-size:1.1rem; line-height:1;
+}
+
+/* ============================================================
+   RESPONSIVE
+   Tiers: >1024 desktop shell · 1024 tablet (sidebar off-canvas)
+   · 768 topbar wraps · 640 single-column mobile · 400 tight phones
+   ============================================================ */
+@media (max-width: 1024px){
+  .dash-sidebar{
+    position:fixed; left:0; top:0; transform:translateX(-100%);
+    transition:transform .3s var(--ease); box-shadow:var(--shadow-lift);
+  }
+  .dash-sidebar.open{ transform:translateX(0); }
+  .sidebar-close{ display:inline-flex; }
+  .sidebar-open{ display:inline-flex; }
+  .kpi-row{ grid-template-columns:repeat(2,1fr); }
+  .dash-grid-2{ grid-template-columns:1fr; }
+}
+
+@media (max-width: 768px){
+  .dash-topbar{ flex-wrap:wrap; row-gap:12px; }
+  .dash-topbar > div:first-child{ min-width:0; }
+  .dash-topbar-actions{ width:100%; justify-content:space-between; }
+}
+
+@media (max-width: 640px){
+  .dash-main{ padding:18px 16px 48px; }
+  .kpi-row{ grid-template-columns:1fr; gap:14px; }
+  .panel{ padding:16px; }
+  .kpi-card{ padding:16px; }
+  .info-row{ flex-wrap:wrap; }
+  .info-row span:last-child{ text-align:left; }
+  /* Bar/donut charts are built as flex rows in JS (see storageChart /
+     typeDonut below). At narrow widths the 6 monthly bars can't shrink
+     below their own min-content size, so they used to overflow past the
+     panel's right edge and get sliced off by body's overflow-x:hidden.
+     Make the chart area its own horizontal scroller instead, and keep
+     the generated bars/labels from shrinking so they stay legible. */
+  .chart-box{ overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; }
+  .chart-box > div{ min-width:max-content; }
+  .chart-box > div > div{ flex:0 0 44px; }
+}
+
+@media (max-width: 400px){
+  .container{ padding:0 18px; }
+  .kpi-card b{ font-size: var(--step-2); }
+  .dash-topbar-actions .btn-sm span{ display:none; }
+}
+
+</style>
+</head>
+<body>
+<div class="dash-wrap">
+  
+<div class="dash-scrim"></div>
+<aside class="dash-sidebar">
+  <div class="sidebar-head">
+    <a href="index.html" class="logo"><img src="./stackly.png" alt="Stackly"></a>
+    <button class="icon-btn sidebar-close" aria-label="Close menu">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="user-card">
+    <!-- <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&q=80" alt="Admin avatar"> -->
+    <div>
+      <div class="u-name" data-user-name>priya.anand</div>
+      <div class="u-email" data-user-email>priya.anand@stacklyvault.com</div>
+    </div>
+  </div>
+  <nav class="dash-nav">
+    <a href="#" data-view="overview" class="active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg> Overview</a>
+    <a href="#" data-view="documents"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg> Documents</a>
+    <a href="#" data-view="users"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7 9v-2a3.9 3.9 0 0 0-2.5-3.7M15 3.2a4 4 0 0 1 0 7.6"/></svg> Users &amp; roles</a>
+    <a href="#" data-view="signatures"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M3 17s2-1 4-1 3 1 5 1 3-1 5-1 4 1 4 1M4 13l9-9 3 3-9 9-4 1 1-4Z"/></svg> Signatures</a>
+    <a href="#" data-view="billing"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Billing</a>
+    <a href="#" data-view="audit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6z"/></svg> Audit log</a>
+    <a href="#" data-view="settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg> Settings</a>
+  </nav>
+  <div class="sidebar-foot">
+    <div class="storage-meter">
+      <span class="muted" style="font-size:.78rem;">Org storage used</span>
+      <div class="bar"><span style="width:62%;"></span></div>
+      <span class="muted" style="font-size:.76rem;">1.9 TB of unlimited on Business plan</span>
+    </div>
+    <a href="login.html" class="logout-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg> Log out</a>
+  </div>
+</aside>
+
+  <main class="dash-main">
+    
+<div class="dash-topbar">
+  <div>
+    <button class="icon-btn sidebar-open" aria-label="Open menu">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+    <div class="dash-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="text" placeholder="Search org documents, users, logs..."></div>
+  </div>
+  <div class="dash-topbar-actions">
+    <button class="icon-btn bell-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M6 8a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="bell-dot"></span></button>
+    <a href="#" data-view="users" class="btn btn-primary btn-sm magnetic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8v6M22 11h-6"/></svg> <span>Invite user</span></a>
+  </div>
+</div>
+
+    
+<div class="dash-view active" data-view="overview">
+  <div class="dash-greet reveal" style="margin-bottom:26px;">
+    <h1>Welcome back , Admin</h1>
+    <p>Storage, signature, and access health across your whole workspace.</p>
+  </div>
+  <div class="kpi-row stagger-group">
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div><span class="kpi-delta up">▲ 6.1%</span></div><b data-count="48210">0</b><span>Total documents</span></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7 9v-2a3.9 3.9 0 0 0-2.5-3.7M15 3.2a4 4 0 0 1 0 7.6"/></svg></div><span class="kpi-delta up">▲ 9 new</span></div><b data-count="214">0</b><span>Active users</span></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M3 17s2-1 4-1 3 1 5 1 3-1 5-1 4 1 4 1M4 13l9-9 3 3-9 9-4 1 1-4Z"/></svg></div><span class="kpi-delta up">▲ 3.4%</span></div><b data-count="612">0</b><span>Signatures this month</span></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6z"/></svg></div><span class="kpi-delta up">▲ 1.2%</span></div><b data-count="98">0</b><span>Compliance score</span></div>
+  </div>
+  <div class="dash-grid-2">
+    <div class="panel">
+      <div class="panel-head"><h3>Storage growth (org-wide)</h3><span class="muted" style="font-size:.8rem;">Last 6 months</span></div>
+      <div class="chart-box" id="storageChart"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Documents by department</h3></div>
+      <div id="typeDonut" style="display:flex;flex-direction:column;align-items:center;gap:18px;"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>Recent org activity</h3><a href="#" data-view="audit" class="muted" style="font-size:.82rem;">View audit log</a></div>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Event</th><th>User</th><th>Time</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Bulk upload — 214 files</td><td>Finance Team</td><td>1 hour ago</td><td><span class="status-pill ok">Completed</span></td></tr>
+          <tr><td>Permission change — Legal folder</td><td>Devon Marsh</td><td>3 hours ago</td><td><span class="status-pill ok">Applied</span></td></tr>
+          <tr><td>New user invited</td><td>Priya Anand</td><td>Yesterday</td><td><span class="status-pill wait">Pending accept</span></td></tr>
+          <tr><td>Retention policy updated — HR records</td><td>Elena Cho</td><td>2 days ago</td><td><span class="status-pill ok">Applied</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+    
+<div class="dash-view" data-view="documents">
+  <div class="panel-head" style="margin-bottom:20px;"><h3 style="font-size:1.4rem;font-family:var(--serif);">All documents</h3><a href="#" class="btn btn-primary btn-sm magnetic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg> Bulk upload</a></div>
+  <div class="panel">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Folder</th><th>Owner</th><th>Modified</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Q3 Vendor Agreement.pdf</div></td><td>Contracts / 2026</td><td>Alex Morgan</td><td>2 hours ago</td><td><span class="status-pill ok">Signed</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Master Services Agreement.pdf</div></td><td>Contracts / 2026</td><td>Legal Team</td><td>5 hours ago</td><td><span class="status-pill wait">Pending</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Employee Handbook 2026.pdf</div></td><td>HR / Policies</td><td>HR Team</td><td>3 days ago</td><td><span class="status-pill ok">Signed</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Insurance Claim — 0092.pdf</div></td><td>Finance / Claims</td><td>Finance Team</td><td>5 days ago</td><td><span class="status-pill bad">Expired</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Board Minutes — Aug.pdf</div></td><td>Governance</td><td>Priya Anand</td><td>1 week ago</td><td><span class="status-pill ok">Signed</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Vendor Master List.xlsx</div></td><td>Finance / Vendors</td><td>Finance Team</td><td>2 weeks ago</td><td><span class="status-pill wait">Draft</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+    
+<div class="dash-view" data-view="users">
+  <div class="panel-head" style="margin-bottom:20px;"><h3 style="font-size:1.4rem;font-family:var(--serif);">Users &amp; roles</h3><a href="#" class="btn btn-primary btn-sm magnetic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8v6M22 11h-6"/></svg> Invite user</a></div>
+  <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
+    <div class="kpi-card"><b>214</b><span>Active users</span></div>
+    <div class="kpi-card"><b>6</b><span>Pending invites</span></div>
+    <div class="kpi-card"><b>12</b><span>Admins</span></div>
+  </div>
+  <div class="panel">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><div class="row-file"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" style="width:30px;height:30px;border-radius:50%;object-fit:cover;">Alex Morgan</div></td><td>alex.morgan@stacklyvault.com</td><td>Member</td><td><span class="status-pill ok">Active</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&q=80" style="width:30px;height:30px;border-radius:50%;object-fit:cover;">Devon Marsh</div></td><td>devon.marsh@stacklyvault.com</td><td>Legal Admin</td><td><span class="status-pill ok">Active</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80" style="width:30px;height:30px;border-radius:50%;object-fit:cover;">Elena Cho</div></td><td>elena.cho@stacklyvault.com</td><td>HR Admin</td><td><span class="status-pill ok">Active</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=100&q=80" style="width:30px;height:30px;border-radius:50%;object-fit:cover;">Marcus Webb</div></td><td>marcus.webb@stacklyvault.com</td><td>Security Admin</td><td><span class="status-pill ok">Active</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=100&q=80" style="width:30px;height:30px;border-radius:50%;object-fit:cover;">Jordan Blake</div></td><td>jordan.blake@stacklyvault.com</td><td>Member</td><td><span class="status-pill wait">Invited</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+    
+<div class="dash-view" data-view="signatures">
+  <h3 style="font-size:1.4rem;font-family:var(--serif);margin-bottom:20px;">Signatures</h3>
+  <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
+    <div class="kpi-card"><b>612</b><span>Sent this month</span></div>
+    <div class="kpi-card"><b>94%</b><span>Completion rate</span></div>
+    <div class="kpi-card"><b>1.4d</b><span>Average time to sign</span></div>
+  </div>
+  <div class="panel">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Document</th><th>Sent by</th><th>Counterparty</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>NDA — Cascade Realty.docx</td><td>Alex Morgan</td><td>Cascade Realty</td><td><span class="status-pill wait">Awaiting signer</span></td></tr>
+          <tr><td>Master Services Agreement.pdf</td><td>Devon Marsh</td><td>Loop Logistics</td><td><span class="status-pill wait">Awaiting counterparty</span></td></tr>
+          <tr><td>Q3 Vendor Agreement.pdf</td><td>Alex Morgan</td><td>Amber &amp; Voss</td><td><span class="status-pill ok">Completed</span></td></tr>
+          <tr><td>Board Minutes — Aug.pdf</td><td>Priya Anand</td><td>Internal</td><td><span class="status-pill ok">Completed</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+    
+<div class="dash-view" data-view="billing">
+  <h3 style="font-size:1.4rem;font-family:var(--serif);margin-bottom:20px;">Billing</h3>
+  <div class="dash-grid-2">
+    <div class="panel">
+      <div class="panel-head"><h3>Current plan</h3><span class="status-pill ok">Active</span></div>
+      <div class="info-row"><span>Plan</span><span>Business — $89/user/month</span></div>
+      <div class="info-row"><span>Billing cycle</span><span>Annual</span></div>
+      <div class="info-row"><span>Seats</span><span>214 of 250</span></div>
+      <div class="info-row"><span>Next invoice</span><span>Oct 1, 2026 — $19,046.00</span></div>
+      <button class="btn btn-ghost" style="margin-top:18px;">Change plan</button>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Payment method</h3></div>
+      <div class="info-row"><span>Card on file</span><span>Visa ending 4417</span></div>
+      <div class="info-row"><span>Billing email</span><span>billing@stacklyvault.com</span></div>
+      <div class="info-row"><span>Billing address</span><span>180 Ledger Street, SF, CA</span></div>
+      <button class="btn btn-ghost" style="margin-top:18px;">Update payment method</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>Invoice history</h3></div>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Invoice</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>INV-2026-09</td><td>Sep 1, 2026</td><td>$19,046.00</td><td><span class="status-pill ok">Paid</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button></td></tr>
+          <tr><td>INV-2026-08</td><td>Aug 1, 2026</td><td>$18,690.00</td><td><span class="status-pill ok">Paid</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button></td></tr>
+          <tr><td>INV-2026-07</td><td>Jul 1, 2026</td><td>$18,690.00</td><td><span class="status-pill ok">Paid</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+    
+<div class="dash-view" data-view="audit">
+  <h3 style="font-size:1.4rem;font-family:var(--serif);margin-bottom:20px;">Audit log</h3>
+  <div class="panel">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Timestamp</th><th>Actor</th><th>Action</th><th>Object</th><th>IP address</th></tr></thead>
+        <tbody>
+          <tr><td>2026-09-06 10:42</td><td>Alex Morgan</td><td>Signed</td><td>Q3 Vendor Agreement.pdf</td><td>104.28.11.4</td></tr>
+          <tr><td>2026-09-06 08:15</td><td>Devon Marsh</td><td>Changed permission</td><td>Legal / Contracts</td><td>142.250.9.68</td></tr>
+          <tr><td>2026-09-05 17:03</td><td>Priya Anand</td><td>Invited user</td><td>jordan.blake@stacklyvault.com</td><td>172.66.0.12</td></tr>
+          <tr><td>2026-09-04 09:22</td><td>Elena Cho</td><td>Updated retention policy</td><td>HR / Records</td><td>34.120.8.19</td></tr>
+          <tr><td>2026-09-01 06:00</td><td>System</td><td>Ran scheduled retention sweep</td><td>184 documents</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+    
+<div class="dash-view" data-view="settings">
+  <h3 style="font-size:1.4rem;font-family:var(--serif);margin-bottom:20px;">Settings</h3>
+  <div class="dash-grid-2">
+    <div class="panel settings-form">
+      <div class="panel-head"><h3>Organization</h3></div>
+      <div class="field"><label>Organization name</label><input type="text" value="Stackly Vault — Ridgeway Bank"></div>
+      <div class="field"><label>Username</label><input type="text" data-user-name-input value="priya.anand" readonly></div>
+      <div class="field"><label>Admin email</label><input type="email" data-user-email-input value="priya.anand@stacklyvault.com"></div>
+      <button class="btn btn-primary magnetic">Save changes</button>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Security policies</h3></div>
+      <div class="toggle-row"><div><p>Require SSO</p><span>Force sign-in through your identity provider</span></div><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+      <div class="toggle-row"><div><p>Enforce 2FA</p><span>Require two-factor authentication for all users</span></div><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+      <div class="toggle-row"><div><p>Watermark shared links</p><span>Add a viewer watermark to external shares</span></div><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+      <div class="toggle-row"><div><p>Auto-expire external links</p><span>Shared links expire after 30 days by default</span></div><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+    </div>
+  </div>
+</div>
+
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+/* ============================================================
+   STACKLY VAULT — shared interactions
+   GSAP + ScrollTrigger (gsap.com/Webflow-style motion patterns)
+   ============================================================ */
+gsap.registerPlugin(ScrollTrigger);
+
+/* ---------- tiny text splitter (no paid plugin dependency) ---------- */
+function splitWords(el){
+  const text = el.textContent.trim();
+  el.innerHTML = '';
+  const words = text.split(/\s+/);
+  words.forEach((w, i) => {
+    const span = document.createElement('span');
+    span.className = 'split-word';
+    span.style.display = 'inline-block';
+    span.textContent = w + (i < words.length - 1 ? '\u00A0' : '');
+    el.appendChild(span);
+  });
+  return el.querySelectorAll('.split-word');
+}
+
+function splitChars(el){
+  const text = el.textContent.trim();
+  el.innerHTML = '';
+  [...text].forEach(ch => {
+    const span = document.createElement('span');
+    span.className = 'split-char';
+    span.style.display = 'inline-block';
+    span.textContent = ch === ' ' ? '\u00A0' : ch;
+    el.appendChild(span);
+  });
+  return el.querySelectorAll('.split-char');
+}
+
+/* ============================================================
+   PRELOADER (removed — callback fires immediately)
+   ============================================================ */
+function initPreloader(cb){
+  cb && cb();
+}
+
+/* ============================================================
+   CUSTOM CURSOR
+   ============================================================ */
+function initCursor(){
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  const dot = document.createElement('div');
+  dot.className = 'cursor-dot';
+  const ring = document.createElement('div');
+  ring.className = 'cursor-ring';
+  document.body.append(dot, ring);
+  let mx=0,my=0, rx=0, ry=0;
+  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; gsap.set(dot,{x:mx,y:my}); });
+  gsap.ticker.add(() => {
+    rx += (mx - rx) * 0.16; ry += (my - ry) * 0.16;
+    gsap.set(ring, { x: rx, y: ry });
+  });
+  document.querySelectorAll('a, button, .magnetic, input, textarea, select, [data-cursor-lg]').forEach(el=>{
+    el.addEventListener('mouseenter', ()=> gsap.to(ring,{width:54,height:54,opacity:.6,duration:.25}));
+    el.addEventListener('mouseleave', ()=> gsap.to(ring,{width:34,height:34,opacity:1,duration:.25}));
+  });
+}
+
+/* ============================================================
+   MAGNETIC BUTTONS
+   ============================================================ */
+function initMagnetic(){
+  document.querySelectorAll('.magnetic').forEach(el=>{
+    el.addEventListener('mousemove', e=>{
+      const r = el.getBoundingClientRect();
+      const x = e.clientX - r.left - r.width/2;
+      const y = e.clientY - r.top - r.height/2;
+      gsap.to(el, { x:x*0.28, y:y*0.35, duration:.4, ease:'power2.out' });
+    });
+    el.addEventListener('mouseleave', ()=> gsap.to(el, { x:0, y:0, duration:.5, ease:'elastic.out(1,0.4)' }));
+  });
+}
+
+/* ============================================================
+   BACKGROUND CANVAS FIELD — drifting document-grid dots
+   ============================================================ */
+function initGridField(container){
+  const canvas = container.querySelector('canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let w, h, dots = [];
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+  function resize(){
+    w = container.clientWidth; h = container.clientHeight;
+    canvas.width = w * DPR; canvas.height = h * DPR;
+    canvas.style.width = w+'px'; canvas.style.height = h+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    const cols = Math.ceil(w / 46) + 2;
+    const rows = Math.ceil(h / 46) + 2;
+    dots = [];
+    for (let y=0; y<rows; y++){
+      for (let x=0; x<cols; x++){
+        dots.push({
+          x: x*46, y: y*46,
+          baseY: y*46,
+          phase: Math.random()*Math.PI*2,
+          speed: 0.4 + Math.random()*0.6,
+          r: Math.random() < 0.06 ? 2.4 : 1.2
+        });
+      }
+    }
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  let t = 0;
+  function draw(){
+    t += 0.012;
+    ctx.clearRect(0,0,w,h);
+    dots.forEach(d=>{
+      const yy = d.baseY + Math.sin(t*d.speed + d.phase) * 8;
+      const alpha = 0.10 + (Math.sin(t*d.speed + d.phase) + 1) * 0.06;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(79,70,229,${alpha})`;
+      ctx.arc(d.x, yy, d.r, 0, Math.PI*2);
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ============================================================
+   NAV: scroll state + mobile toggle
+   ============================================================ */
+function initNav(){
+  const nav = document.querySelector('.site-nav');
+  if (nav){
+    ScrollTrigger.create({
+      start: 40, end: 99999,
+      onUpdate: self => nav.classList.toggle('scrolled', self.scroll() > 40)
+    });
+  }
+  const toggle = document.querySelector('.nav-toggle');
+  const links = document.querySelector('.nav-links');
+  if (toggle && links){
+    toggle.addEventListener('click', ()=>{
+      const open = links.classList.toggle('mobile-open');
+      if (open){
+        links.style.cssText = 'display:flex;flex-direction:column;position:fixed;top:86px;left:20px;right:20px;background:#FFFFFF;border:1px solid rgba(30,27,60,.12);border-radius:18px;padding:14px;gap:4px;z-index:999;box-shadow:0 20px 45px -20px rgba(30,27,60,.28);';
+      } else {
+        links.removeAttribute('style');
+      }
+    });
+    links.querySelectorAll('a').forEach(a => a.addEventListener('click', ()=>{
+      links.classList.remove('mobile-open'); links.removeAttribute('style');
+    }));
+  }
+}
+
+/* ============================================================
+   HERO ENTRANCE — redaction bar reveal (single orchestrated moment)
+   ============================================================ */
+function playHeroEntrance(){
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+  const lines = hero.querySelectorAll('.redact-line');
+  const tl = gsap.timeline({ defaults:{ ease:'power4.out' } });
+
+  lines.forEach((line, i) => {
+    const chars = splitWords(line);
+    const bar = document.createElement('div');
+    bar.style.cssText = 'position:absolute;inset:0;background:#4F46E5;transform-origin:left;z-index:2;';
+    line.style.position='relative';
+    line.appendChild(bar);
+    gsap.set(chars, { opacity:0, y: 26 });
+    tl.to(bar, { scaleX:1, duration:0, ease:'none' }, i*0.12)
+      .to(bar, { scaleX:0, transformOrigin:'right', duration:.6 }, i*0.12 + 0.35)
+      .to(chars, { opacity:1, y:0, duration:.7, stagger:0.03 }, i*0.12 + 0.32);
+    gsap.set(bar, { scaleX:1 });
+  });
+
+  tl.from('.doc-tape', { opacity:0, y:14, duration:.6 }, 0)
+    .from('.hero-copy p.lead', { opacity:0, y:18, duration:.7 }, 0.5)
+    .from('.hero-actions > *', { opacity:0, y:16, duration:.6, stagger:.1 }, 0.65)
+    .from('.hero-proof', { opacity:0, y:16, duration:.6 }, 0.8)
+    .from('.doc-card.c3', { opacity:0, x:40, rotate:8, duration:.9 }, 0.3)
+    .from('.doc-card.c1', { opacity:0, y:50, duration:.9 }, 0.42)
+    .from('.doc-card.c2', { opacity:0, y:40, x:-20, duration:.9 }, 0.54)
+    .from('.float-chip', { opacity:0, scale:.7, stagger:.12, duration:.6, ease:'back.out(2)' }, 0.9);
+
+  gsap.to('.doc-card.c1', { y: -14, duration: 3.2, repeat:-1, yoyo:true, ease:'sine.inOut', delay:1.6 });
+  gsap.to('.doc-card.c2', { y: 10, duration: 3.8, repeat:-1, yoyo:true, ease:'sine.inOut', delay:1.8 });
+  gsap.to('.doc-card.c3', { y: -10, rotate:2, duration:4.2, repeat:-1, yoyo:true, ease:'sine.inOut', delay:2 });
+  gsap.to('.float-chip.fc1', { y:-12, duration:2.6, repeat:-1, yoyo:true, ease:'sine.inOut' });
+  gsap.to('.float-chip.fc2', { y:10, duration:3, repeat:-1, yoyo:true, ease:'sine.inOut' });
+}
+
+/* ============================================================
+   PAGE HEADER ENTRANCE (non-home pages)
+   ============================================================ */
+function playPageHeaderEntrance(){
+  const head = document.querySelector('.page-hero');
+  if (!head) return;
+  const title = head.querySelector('h1');
+  if (!title) return;
+  const words = splitWords(title);
+  const bar = document.createElement('div');
+  bar.style.cssText = 'position:absolute;inset:0;background:#4F46E5;transform-origin:left;z-index:2;';
+  title.style.position='relative';
+  title.appendChild(bar);
+  gsap.set(words, { opacity:0, y:24 });
+  gsap.timeline({ defaults:{ ease:'power4.out' } })
+    .to(bar, { scaleX:0, transformOrigin:'right', duration:.65, delay:.15 })
+    .to(words, { opacity:1, y:0, stagger:.03, duration:.7 }, 0.42)
+    .from('.page-hero .eyebrow', { opacity:0, y:12, duration:.5 }, 0)
+    .from('.page-hero p.lead', { opacity:0, y:16, duration:.6 }, 0.6)
+    .from('.page-hero .breadcrumb', { opacity:0, duration:.5 }, 0);
+}
+
+/* ============================================================
+   SCROLL REVEALS
+   ============================================================ */
+function initScrollReveals(){
+  gsap.utils.toArray('.reveal').forEach((el, i) => {
+    ScrollTrigger.create({
+      trigger: el, start: 'top 86%',
+      onEnter: () => el.classList.add('in-view'),
+      once:true
+    });
+  });
+
+  gsap.utils.toArray('.stagger-group').forEach(group => {
+    const items = group.children;
+    gsap.from(items, {
+      opacity:0, y:30, duration:.7, stagger:0.09, ease:'power3.out',
+      scrollTrigger: { trigger: group, start:'top 85%' }
+    });
+  });
+
+  gsap.utils.toArray('.reveal-img').forEach(box => {
+    const curtain = box.querySelector('.curtain');
+    const img = box.querySelector('img');
+    if (!curtain) return;
+    gsap.timeline({ scrollTrigger:{ trigger: box, start:'top 82%' } })
+      .to(curtain, { scaleX:0, transformOrigin:'right', duration:.9, ease:'power4.inOut' })
+      .to(img, { scale:1, duration:1.2, ease:'power3.out' }, 0.05);
+  });
+
+  gsap.utils.toArray('[data-parallax]').forEach(el=>{
+    const amt = parseFloat(el.getAttribute('data-parallax')) || 40;
+    gsap.to(el, {
+      y: amt, ease:'none',
+      scrollTrigger: { trigger: el.closest('section') || el, start:'top bottom', end:'bottom top', scrub: 0.6 }
+    });
+  });
+
+  gsap.utils.toArray('.section-head h2, .cta-band h2').forEach(h => {
+    if (h.closest('.hero') || h.closest('.page-hero')) return;
+    const words = splitWords(h);
+    gsap.from(words, {
+      opacity:0, y:22, stagger:0.025, duration:.7, ease:'power3.out',
+      scrollTrigger: { trigger: h, start:'top 88%' }
+    });
+  });
+}
+
+/* ============================================================
+   COUNTERS
+   ============================================================ */
+function initCounters(){
+  gsap.utils.toArray('[data-count]').forEach(el=>{
+    const target = parseFloat(el.getAttribute('data-count'));
+    const decimals = (el.getAttribute('data-count').split('.')[1] || '').length;
+    const suffix = el.getAttribute('data-suffix') || '';
+    const state = { v: 0 };
+    ScrollTrigger.create({
+      trigger: el, start:'top 90%', once:true,
+      onEnter(){
+        gsap.to(state, {
+          v: target, duration: 1.8, ease:'power2.out',
+          onUpdate(){ el.textContent = state.v.toFixed(decimals) + suffix; }
+        });
+      }
+    });
+  });
+}
+
+/* ============================================================
+   MARQUEE
+   ============================================================ */
+function initMarquee(){
+  document.querySelectorAll('.marquee-track').forEach(track=>{
+    track.innerHTML += track.innerHTML;
+    gsap.to(track, { xPercent: -50, duration: 26, ease:'none', repeat:-1 });
+  });
+}
+
+/* ============================================================
+   FAQ ACCORDION
+   ============================================================ */
+function initFaq(){
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    const answer = item.querySelector('.faq-a');
+    item.addEventListener('click', ()=>{
+      const isOpen = item.classList.contains('open');
+      item.closest('.faq-list').querySelectorAll('.faq-item').forEach(other=>{
+        other.classList.remove('open');
+        other.querySelector('.faq-a').style.maxHeight = null;
+      });
+      if (!isOpen){
+        item.classList.add('open');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+      }
+    });
+  });
+}
+
+/* ============================================================
+   INIT ALL (call from each page)
+   ============================================================ */
+function stacklyInit(opts = {}){
+  document.querySelectorAll('.grid-field').forEach(initGridField);
+  initCursor();
+  initNav();
+  initMagnetic();
+  initFaq();
+  initMarquee();
+
+  initPreloader(()=>{
+    if (opts.hero) playHeroEntrance();
+    if (opts.pageHeader) playPageHeaderEntrance();
+    initScrollReveals();
+    initCounters();
+    ScrollTrigger.refresh();
+    if (typeof opts.after === 'function') opts.after();
+  });
+}
+
+/* ============================================================
+   DASHBOARD SIDEBAR (shared by admin/user dashboards)
+   ============================================================ */
+function initDashSidebar(){
+  const sidebar = document.querySelector('.dash-sidebar');
+  const openBtn = document.querySelector('.sidebar-open');
+  const closeBtn = document.querySelector('.sidebar-close');
+  const scrim = document.querySelector('.dash-scrim');
+  function open(){ sidebar.classList.add('open'); scrim && scrim.classList.add('show'); }
+  function close(){ sidebar.classList.remove('open'); scrim && scrim.classList.remove('show'); }
+  openBtn && openBtn.addEventListener('click', open);
+  closeBtn && closeBtn.addEventListener('click', close);
+  scrim && scrim.addEventListener('click', close);
+}
+
+function initDashViews(storageKey){
+  const links = document.querySelectorAll('[data-view]');
+  const views = document.querySelectorAll('.dash-view');
+  function show(name){
+    views.forEach(v => v.classList.toggle('active', v.dataset.view === name));
+    links.forEach(l => l.classList.toggle('active', l.dataset.view === name));
+    try{ localStorage.setItem(storageKey, name); }catch(e){}
+    const sidebar = document.querySelector('.dash-sidebar');
+    const scrim = document.querySelector('.dash-scrim');
+    if (window.innerWidth <= 1024 && sidebar){ sidebar.classList.remove('open'); scrim && scrim.classList.remove('show'); }
+  }
+  links.forEach(l => l.addEventListener('click', e=>{ e.preventDefault(); show(l.dataset.view); }));
+  let last = 'overview';
+  try{ last = localStorage.getItem(storageKey) || 'overview'; }catch(e){}
+  show(last);
+}
+
+function loadSessionUser(){
+  let user = null;
+  try{ user = JSON.parse(localStorage.getItem('stackly_user')); }catch(e){}
+  if (!user){
+    user = { name:'Alex Morgan', email:'alex.morgan@stacklyvault.com', role:'Member' };
+  }
+  var username = (user.email || '').split('@')[0] || user.name;
+  document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = username);
+  document.querySelectorAll('[data-user-email]').forEach(el => el.textContent = user.email);
+  document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = user.role || 'Member');
+  document.querySelectorAll('[data-user-first]').forEach(el => el.textContent = username.split('.')[0]);
+  return user;
+}
+
+/* ============================================================
+   TOASTS — shared popup/notification helper
+   stacklyToast(title, message, { type: 'success'|'error', duration: ms })
+   ============================================================ */
+function stacklyToast(title, message, opts = {}){
+  const type = opts.type || 'success';
+  const duration = opts.duration || 4200;
+
+  let host = document.getElementById('stacklyToasts');
+  if (!host){
+    host = document.createElement('div');
+    host.id = 'stacklyToasts';
+    document.body.appendChild(host);
+  }
+
+  const el = document.createElement('div');
+  el.className = 'stackly-toast' + (type === 'error' ? ' error' : '');
+  el.innerHTML =
+    '<span class="toast-icon">' + (type === 'error' ? '!' : '\u2713') + '</span>' +
+    '<div class="toast-body">' +
+      '<div class="toast-title"></div>' +
+      (message ? '<div class="toast-msg"></div>' : '') +
+    '</div>' +
+    '<button type="button" class="toast-close" aria-label="Dismiss">&times;</button>';
+  el.querySelector('.toast-title').textContent = title;
+  if (message) el.querySelector('.toast-msg').textContent = message;
+
+  host.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+
+  function dismiss(){
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 350);
+  }
+  el.querySelector('.toast-close').addEventListener('click', dismiss);
+  const timer = setTimeout(dismiss, duration);
+  el.addEventListener('mouseenter', () => clearTimeout(timer));
+
+  return el;
+}
+</script>
+<script>
+
+gsap.registerPlugin(ScrollTrigger);
+initPreloader(function(){
+  initScrollReveals();
+  initCounters();
+  ScrollTrigger.refresh();
+});
+initCursor();
+initMagnetic();
+initDashSidebar();
+initDashViews('stackly_admin_active_view');
+var sessionUser = loadSessionUser();
+var nameInput = document.querySelector('[data-user-name-input]');
+var emailInput = document.querySelector('[data-user-email-input]');
+if(nameInput) nameInput.value = (sessionUser.email || '').split('@')[0];
+if(emailInput) emailInput.value = sessionUser.email;
+if(emailInput) emailInput.addEventListener('input', function(){
+  if(nameInput) nameInput.value = (emailInput.value || '').split('@')[0];
+});
+
+(function(){
+  var box = document.getElementById('storageChart');
+  if(!box) return;
+  var data = [820,980,1120,1350,1620,1900];
+  var months = ['Mar','Apr','May','Jun','Jul','Aug'];
+  var max = Math.max.apply(null, data);
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;align-items:flex-end;gap:14px;height:100%;padding-top:10px;';
+  data.forEach(function(v, i){
+    var col = document.createElement('div');
+    col.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end;';
+    var bar = document.createElement('div');
+    bar.style.cssText = 'width:100%;max-width:34px;background:linear-gradient(180deg,#6D5EF5,#4F46E5);border-radius:6px 6px 0 0;height:0%;';
+    var label = document.createElement('span');
+    label.textContent = months[i];
+    label.style.cssText = 'font-size:.72rem;color:#6B7280;';
+    col.appendChild(bar); col.appendChild(label);
+    wrap.appendChild(col);
+    gsap.to(bar, { height: (v/max*100)+'%', duration:1.1, delay: i*0.08, ease:'power3.out', scrollTrigger:{ trigger: box, start:'top 85%' } });
+  });
+  box.appendChild(wrap);
+})();
+
+(function(){
+  var box = document.getElementById('typeDonut');
+  if(!box) return;
+  var seg = [
+    {label:'Legal', val:36, color:'#4F46E5'},
+    {label:'Finance', val:28, color:'#6D5EF5'},
+    {label:'HR', val:22, color:'#9CA3AF'},
+    {label:'Other', val:14, color:'#E7E1F6'}
+  ];
+  var r = 52; var circ = 2*Math.PI*r;
+  var svgParts = ''; var offset = 0;
+  seg.forEach(function(s){
+    var len = circ * (s.val/100);
+    svgParts += '<circle cx="70" cy="70" r="'+r+'" fill="none" stroke="'+s.color+'" stroke-width="16" stroke-dasharray="'+len+' '+(circ-len)+'" stroke-dashoffset="'+(-offset)+'" />';
+    offset += len;
+  });
+  box.innerHTML = '<svg width="140" height="140" viewBox="0 0 140 140" style="transform:rotate(-90deg);">'+svgParts+'</svg>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">' +
+    seg.map(function(s){ return '<span style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#6B7280;"><span style="width:8px;height:8px;border-radius:50%;background:'+s.color+';display:inline-block;"></span>'+s.label+' '+s.val+'%</span>'; }).join('') +
+    '</div>';
+})();
+
+</script>
+</body>
+</html>

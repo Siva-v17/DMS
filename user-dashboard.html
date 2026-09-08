@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Dashboard — Stackly Vault</title>
+<meta name="description" content="Manage your documents, signatures, and shared files in your Stackly Vault dashboard.">
+<link rel="icon" href="./stackly.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+</head>
+<style>
+/* ============================================================
+   STACKLY VAULT — Design system v2
+   "declassified paper" — off-white / parchment surfaces
+   + indigo accent, warm red as rare alert accent only.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root{
+  /* color */
+  --bg:       #F8F6F1;   /* page background — warm off-white */
+  --bg-soft:  #EFEBFA;   /* alternate section tint — soft indigo-white */
+  --surface:  #FFFFFF;   /* card / surface background */
+  --surface-2:#F1EEFB;   /* icon chips, secondary surface */
+  --surface-3:#E7E1F6;   /* stacked-card shadow layer, deeper tint */
+
+  --ink:      #1E1B2E;   /* primary dark text (deep indigo-black) */
+  --ink-2:    #FFFFFF;   /* card surface (kept for compatibility — same as --surface) */
+  --mist:     #F1EEFB;   /* light indigo-tinted surface (icon boxes, chips) */
+  --mist-2:   #E7E1F6;   /* deeper tint (stack shadows, borders) */
+  --paper:    #F8F6F1;   /* alias of --bg, kept for compatibility */
+  --paper-2:  #EFEBFA;   /* alias of --bg-soft */
+
+  --manila:   #4F46E5;   /* PRIMARY ACCENT — indigo-600 */
+  --manila-2: #6D5EF5;   /* accent hover / lighter — indigo-500 */
+  --indigo:   #4F46E5;
+  --indigo-2: #6D5EF5;
+  --on-accent:#FFFFFF;   /* text placed on top of the accent color */
+
+  --redline:  #D6483C;   /* rare alert accent */
+  --slate:    #6B7280;   /* muted text */
+  --slate-2:  #8B8FA3;   /* lighter muted text */
+  --line:     rgba(30,27,60,0.12);
+  --line-soft:rgba(30,27,60,0.08);
+
+  /* type */
+  --serif: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ============================================================
+   RESET / BASE
+   ============================================================ */
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0;
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+button{ font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
+input, select, textarea{ font-family:inherit; }
+.muted{ color:var(--slate); }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:12px 22px; border-radius:999px;
+  font-weight:600; font-size:.92rem;
+  transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+}
+.btn-primary{
+  background:var(--manila); color:var(--on-accent);
+  box-shadow:0 10px 24px -12px rgba(79,70,229,.55);
+}
+.btn-primary:hover{ background:var(--manila-2); }
+.btn-sm{ padding:9px 16px; font-size:.85rem; }
+.icon-btn{
+  width:38px; height:38px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--surface); border:1px solid var(--line);
+  color:var(--ink); flex-shrink:0;
+}
+.icon-btn:hover{ background:var(--surface-2); }
+
+/* ============================================================
+   DASHBOARD LAYOUT
+   ============================================================ */
+.dash-wrap{
+  display:flex;
+  min-height:100vh;
+  background:var(--bg);
+  max-width:100vw;
+}
+.dash-scrim{
+  position:fixed; inset:0; background:rgba(30,27,60,.45);
+  opacity:0; pointer-events:none; transition:opacity .3s ease; z-index:39;
+}
+.dash-scrim.show{ opacity:1; pointer-events:auto; }
+
+/* ---- sidebar ---- */
+.dash-sidebar{
+  width:264px; flex-shrink:0;
+  background:var(--surface);
+  border-right:1px solid var(--line);
+  display:flex; flex-direction:column;
+  padding:22px 18px;
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+  z-index:40;
+}
+.sidebar-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; }
+.sidebar-head .logo img{ height:26px; }
+.sidebar-close{ display:none; }
+
+.user-card{
+  display:flex; align-items:center; gap:12px;
+  padding:12px; border-radius:14px;
+  background:var(--mist);
+  margin-bottom:22px;
+}
+.user-card img{ width:40px; height:40px; border-radius:50%; object-fit:cover; }
+.u-name{ font-weight:700; font-size:.92rem; }
+.u-email{ font-size:.76rem; color:var(--slate); word-break:break-all; }
+
+.dash-nav{ display:flex; flex-direction:column; gap:2px; margin-bottom:auto; }
+.dash-nav a{
+  display:flex; align-items:center; gap:12px;
+  padding:11px 14px; border-radius:12px;
+  font-size:.9rem; font-weight:600; color:var(--slate);
+  transition:background .2s ease, color .2s ease;
+}
+.dash-nav a svg{ flex-shrink:0; }
+.dash-nav a:hover{ background:var(--mist); color:var(--ink); }
+.dash-nav a.active{ background:var(--manila); color:#fff; }
+
+.sidebar-foot{ margin-top:22px; padding-top:18px; border-top:1px solid var(--line); }
+.storage-meter{ display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.storage-meter .bar{ height:6px; border-radius:999px; background:var(--mist-2); overflow:hidden; }
+.storage-meter .bar span{ display:block; height:100%; background:var(--manila); border-radius:999px; }
+.logout-link{
+  display:flex; align-items:center; gap:10px;
+  font-size:.88rem; font-weight:600; color:var(--redline);
+  padding:10px 14px; border-radius:12px;
+}
+.logout-link:hover{ background:rgba(214,72,60,.08); }
+
+/* ---- main column ---- */
+.dash-main{ flex:1; min-width:0; padding:22px 30px 60px; }
+
+.dash-topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; margin-bottom:26px; flex-wrap:wrap;
+}
+.sidebar-open{ display:none; }
+.dash-search{
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:999px; padding:10px 16px; min-width:280px;
+  color:var(--slate);
+}
+.dash-search input{
+  border:none; outline:none; background:none; color:var(--ink);
+  font-size:.88rem; width:100%; min-width:0;
+}
+.dash-topbar-actions{ display:flex; align-items:center; gap:12px; }
+.bell-btn{ position:relative; }
+.bell-dot{
+  position:absolute; top:8px; right:9px;
+  width:7px; height:7px; border-radius:50%; background:var(--redline);
+  border:2px solid var(--surface);
+}
+
+/* ---- views ---- */
+.dash-view{ display:none; min-width:0; }
+.dash-view.active{ display:block; }
+
+.dash-greet h1{
+  font-family:var(--serif); font-weight:600; font-size:1.9rem; margin:0 0 6px;
+}
+.dash-greet p{ margin:0; color:var(--slate); }
+
+/* ---- kpi cards ---- */
+.kpi-row{
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-bottom:24px;
+}
+.kpi-card{
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:16px; padding:20px;
+  min-width:0;
+}
+.kpi-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:8px; }
+.kpi-ic{
+  width:36px; height:36px; border-radius:10px;
+  background:var(--mist); color:var(--manila);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.kpi-delta{ font-size:.76rem; font-weight:700; padding:3px 8px; border-radius:999px; white-space:nowrap; }
+.kpi-delta.up{ color:#1F8A5B; background:rgba(31,138,91,.12); }
+.kpi-delta.down{ color:var(--redline); background:rgba(214,72,60,.1); }
+.kpi-card b{ display:block; font-family:var(--serif); font-size:1.9rem; font-weight:600; margin-bottom:2px; }
+.kpi-card span{ font-size:.84rem; color:var(--slate); }
+
+/* ---- panels / grid ---- */
+.dash-grid-2{ display:grid; grid-template-columns:1.3fr 1fr; gap:18px; margin-bottom:18px; }
+.panel{
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:18px; padding:20px;
+  min-width:0;
+}
+.panel-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; gap:10px; flex-wrap:wrap; }
+.panel-head h3{ margin:0; font-family:var(--serif); font-weight:600; font-size:1.08rem; }
+.chart-box{ height:220px; }
+
+/* ---- tables ---- */
+.table-scroll{ overflow-x:auto; min-width:0; -webkit-overflow-scrolling:touch; }
+.data-table{ width:100%; border-collapse:collapse; font-size:.88rem; }
+.data-table th{
+  text-align:left; font-size:.74rem; text-transform:uppercase; letter-spacing:.05em;
+  color:var(--slate-2); font-weight:700; padding:0 12px 10px; white-space:nowrap;
+}
+.data-table td{ padding:12px; border-top:1px solid var(--line-soft); vertical-align:middle; white-space:nowrap; }
+.data-table tbody tr:hover{ background:var(--mist); }
+
+.row-file{ display:flex; align-items:center; gap:10px; font-weight:600; white-space:normal; }
+.f-ic{
+  width:32px; height:32px; border-radius:8px; flex-shrink:0;
+  background:var(--mist); color:var(--manila);
+  display:flex; align-items:center; justify-content:center;
+}
+.row-actions{ display:flex; gap:6px; }
+.row-actions button{
+  width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+  color:var(--slate);
+}
+.row-actions button:hover{ background:var(--mist); color:var(--ink); }
+
+.status-pill{
+  display:inline-flex; padding:4px 11px; border-radius:999px;
+  font-size:.76rem; font-weight:700;
+}
+.status-pill.ok{ background:rgba(31,138,91,.12); color:#1F8A5B; }
+.status-pill.wait{ background:rgba(79,70,229,.1); color:var(--manila); }
+.status-pill.bad{ background:rgba(214,72,60,.1); color:var(--redline); }
+
+/* ---- activity ---- */
+.activity-item{ display:flex; gap:14px; padding:12px 0; border-top:1px solid var(--line-soft); }
+.activity-item:first-child{ border-top:none; padding-top:0; }
+.a-dot{
+  width:34px; height:34px; border-radius:50%; flex-shrink:0;
+  background:var(--mist); color:var(--manila);
+  display:flex; align-items:center; justify-content:center;
+}
+.activity-item p{ margin:0 0 3px; font-size:.88rem; }
+.activity-item span{ font-size:.78rem; color:var(--slate); }
+
+/* ---- upload zone ---- */
+.upload-zone{
+  border:2px dashed var(--line); border-radius:16px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+  padding:40px 20px; text-align:center; color:var(--slate);
+}
+.upload-zone svg{ color:var(--manila); }
+
+/* ---- settings ---- */
+.settings-form .field{ margin-bottom:16px; display:flex; flex-direction:column; gap:6px; }
+.settings-form label{ font-size:.82rem; font-weight:600; color:var(--slate); }
+.settings-form input{
+  padding:11px 14px; border-radius:10px; border:1px solid var(--line);
+  background:var(--bg); font-size:.9rem; color:var(--ink); outline:none;
+  width:100%;
+}
+.settings-form input:focus{ border-color:var(--manila); }
+.settings-form input:disabled{ color:var(--slate-2); }
+
+.toggle-row{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:14px 0; border-top:1px solid var(--line-soft);
+}
+.toggle-row:first-child{ border-top:none; padding-top:0; }
+.toggle-row p{ margin:0 0 2px; font-weight:600; font-size:.9rem; }
+.toggle-row span{ font-size:.8rem; color:var(--slate); }
+.switch{ position:relative; display:inline-block; width:42px; height:24px; flex-shrink:0; }
+.switch input{ opacity:0; width:0; height:0; }
+.switch .slider{
+  position:absolute; inset:0; background:var(--mist-2); border-radius:999px; cursor:pointer; transition:.25s;
+}
+.switch .slider::before{
+  content:''; position:absolute; width:18px; height:18px; left:3px; top:3px;
+  background:#fff; border-radius:50%; transition:.25s; box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.switch input:checked + .slider{ background:var(--manila); }
+.switch input:checked + .slider::before{ transform:translateX(18px); }
+
+.info-row{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 0; border-top:1px solid var(--line-soft); font-size:.9rem; gap:12px; flex-wrap:wrap;
+}
+.info-row:first-child{ border-top:none; padding-top:0; }
+.info-row span:first-child{ color:var(--slate); }
+.info-row span:last-child{ font-weight:600; }
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+#stacklyToasts{ position:fixed; top:20px; right:20px; z-index:10000; display:flex; flex-direction:column; gap:10px; max-width:calc(100vw - 40px); }
+.stackly-toast{
+  display:flex; align-items:flex-start; gap:10px;
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:14px; padding:14px 16px; min-width:260px; max-width:340px;
+  box-shadow:0 20px 40px -18px rgba(30,27,60,.3);
+  transform:translateX(20px); opacity:0; transition:transform .35s ease, opacity .35s ease;
+}
+.stackly-toast.show{ transform:translateX(0); opacity:1; }
+.toast-icon{
+  width:22px; height:22px; border-radius:50%; flex-shrink:0;
+  background:rgba(31,138,91,.15); color:#1F8A5B;
+  display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.78rem;
+}
+.stackly-toast.error .toast-icon{ background:rgba(214,72,60,.15); color:var(--redline); }
+.toast-title{ font-weight:700; font-size:.88rem; }
+.toast-msg{ font-size:.8rem; color:var(--slate); margin-top:2px; }
+.toast-close{ margin-left:auto; color:var(--slate-2); font-size:1rem; line-height:1; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1024px){
+  .dash-sidebar{
+    position:fixed; left:0; top:0; transform:translateX(-100%);
+    transition:transform .3s ease; box-shadow:0 0 40px rgba(0,0,0,.2);
+    width:min(264px, 84vw);
+  }
+  .dash-sidebar.open{ transform:translateX(0); }
+  .sidebar-close{ display:flex; }
+  .sidebar-open{ display:flex; }
+  .dash-grid-2{ grid-template-columns:1fr; }
+}
+@media (max-width: 900px){
+  .kpi-row{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 720px){
+  .dash-main{ padding:18px 16px 50px; }
+  .dash-search{ min-width:0; flex:1; }
+  .kpi-card{ padding:16px; }
+  .kpi-card b{ font-size:1.6rem; }
+}
+@media (max-width: 560px){
+  .dash-topbar{ gap:10px; }
+  .dash-topbar > div:first-child{ width:100%; }
+  .dash-topbar-actions{ width:100%; justify-content:space-between; }
+  .panel{ padding:16px; }
+  .kpi-row{ gap:12px; }
+}
+@media (max-width: 420px){
+  .kpi-row{ grid-template-columns:minmax(0,1fr); }
+  .dash-greet h1{ font-size:1.5rem; }
+}
+</style>
+<body>
+
+<div class="dash-wrap">
+  
+<div class="dash-scrim"></div>
+<aside class="dash-sidebar">
+  <div class="sidebar-head">
+    <a href="index.html" class="logo"><img src="./stackly.png" alt="Stackly"></a>
+    <button class="icon-btn sidebar-close" aria-label="Close menu">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="user-card">
+    <!-- <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80" alt="User avatar"> -->
+    <div>
+      <div class="u-name" data-user-name>Alex Morgan</div>
+      <div class="u-email" data-user-email>alex.morgan@stacklyvault.com</div>
+    </div>
+  </div>
+  <nav class="dash-nav">
+    <a href="#" data-view="overview" class="active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg> Overview</a>
+    <a href="#" data-view="documents"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg> My Documents</a>
+    <a href="#" data-view="shared"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-3.9M8.6 13.5l6.8 3.9"/></svg> Shared with me</a>
+    <a href="#" data-view="signatures"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M3 17s2-1 4-1 3 1 5 1 3-1 5-1 4 1 4 1M4 13l9-9 3 3-9 9-4 1 1-4Z"/></svg> Signatures</a>
+    <a href="#" data-view="activity"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> Activity</a>
+    <a href="#" data-view="settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg> Settings</a>
+  </nav>
+  <div class="sidebar-foot">
+    <div class="storage-meter">
+      <span class="muted" style="font-size:.78rem;">Storage used</span>
+      <div class="bar"><span style="width:38%;"></span></div>
+      <span class="muted" style="font-size:.76rem;">38 GB of unlimited on Team plan</span>
+    </div>
+    <a href="login.html" class="logout-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg> Log out</a>
+  </div>
+</aside>
+
+  <main class="dash-main">
+    
+<div class="dash-topbar">
+  <div style="display:flex;align-items:center;gap:14px;">
+    <button class="icon-btn sidebar-open" aria-label="Open menu">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+    <div class="dash-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="text" placeholder="Search documents, folders, people..."></div>
+  </div>
+  <div class="dash-topbar-actions">
+    <button class="icon-btn bell-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M6 8a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="bell-dot"></span></button>
+    <a href="#" data-view="documents" class="btn btn-primary btn-sm magnetic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg> Upload</a>
+  </div>
+</div>
+
+    
+<div class="dash-view active" data-view="overview">
+  <div class="dash-greet reveal" style="margin-bottom:26px;">
+    <h1>Welcome back, <span data-user-first>Alex</span></h1>
+    <p>Here's what's happening in your vault today.</p>
+  </div>
+  <div class="kpi-row stagger-group">
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div><span class="kpi-delta up">▲ 4.2%</span></div><b data-count="1284">0</b><span>Documents stored</span></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M3 17s2-1 4-1 3 1 5 1 3-1 5-1 4 1 4 1M4 13l9-9 3 3-9 9-4 1 1-4Z"/></svg></div><span class="kpi-delta down">▼ 1</span></div><b data-count="3">0</b><span>Pending signatures</span></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-3.9M8.6 13.5l6.8 3.9"/></svg></div><span class="kpi-delta up">▲ 2 new</span></div><b data-count="17">0</b><span>Shared with you</span></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div><span class="kpi-delta up">▲ 12%</span></div><b data-count="92">0</b><span>Actions this week</span></div>
+  </div>
+  <div class="dash-grid-2">
+    <div class="panel">
+      <div class="panel-head"><h3>Storage growth</h3><span class="muted" style="font-size:.8rem;">Last 6 months</span></div>
+      <div class="chart-box" id="storageChart"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Document types</h3></div>
+      <div id="typeDonut" style="display:flex;flex-direction:column;align-items:center;gap:18px;"></div>
+    </div>
+  </div>
+  <div class="dash-grid-2">
+    <div class="panel">
+      <div class="panel-head"><h3>Recent documents</h3><a href="#" data-view="documents" class="muted" style="font-size:.82rem;">View all</a></div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Owner</th><th>Modified</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Q3 Vendor Agreement.pdf</div></td><td>You</td><td>2 hours ago</td><td><span class="status-pill ok">Signed</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button></td></tr>
+            <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>NDA — Cascade Realty.docx</div></td><td>You</td><td>Yesterday</td><td><span class="status-pill wait">Pending</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button></td></tr>
+            <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Employee Handbook 2026.pdf</div></td><td>HR Team</td><td>3 days ago</td><td><span class="status-pill ok">Signed</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button></td></tr>
+            <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Insurance Claim — 0092.pdf</div></td><td>Finance</td><td>5 days ago</td><td><span class="status-pill bad">Expired</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Recent activity</h3></div>
+      <div>
+        <div class="activity-item"><div class="a-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M3 17s2-1 4-1 3 1 5 1 3-1 5-1 4 1 4 1M4 13l9-9 3 3-9 9-4 1 1-4Z"/></svg></div><div><p>You signed <b>Q3 Vendor Agreement.pdf</b></p><span>2 hours ago</span></div></div>
+        <div class="activity-item"><div class="a-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-3.9M8.6 13.5l6.8 3.9"/></svg></div><div><p>Priya shared <b>Onboarding Kit.zip</b> with you</p><span>Yesterday</span></div></div>
+        <div class="activity-item"><div class="a-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></div><div><p>You uploaded 4 files to <b>Contracts / 2026</b></p><span>3 days ago</span></div></div>
+        <div class="activity-item"><div class="a-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div><div><p><b>Insurance Claim — 0092.pdf</b> expired</p><span>5 days ago</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+<div class="dash-view" data-view="documents">
+  <div class="panel-head" style="margin-bottom:20px;"><h3 style="font-size:1.4rem;font-family:var(--serif);">My Documents</h3><a href="#" class="btn btn-primary btn-sm magnetic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg> Upload files</a></div>
+  <div class="panel" style="margin-bottom:24px;">
+    <div class="upload-zone">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+      <p><b style="color:var(--ink);">Drag and drop files here</b><br>or click Upload to browse — PDF, DOCX, XLSX up to 500MB each</p>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>All files</h3><span class="muted" style="font-size:.8rem;">1,284 documents</span></div>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Folder</th><th>Size</th><th>Modified</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Q3 Vendor Agreement.pdf</div></td><td>Contracts / 2026</td><td>1.2 MB</td><td>2 hours ago</td><td><span class="status-pill ok">Signed</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>NDA — Cascade Realty.docx</div></td><td>Contracts / 2026</td><td>410 KB</td><td>Yesterday</td><td><span class="status-pill wait">Pending</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Employee Handbook 2026.pdf</div></td><td>HR / Policies</td><td>3.4 MB</td><td>3 days ago</td><td><span class="status-pill ok">Signed</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Insurance Claim — 0092.pdf</div></td><td>Finance / Claims</td><td>880 KB</td><td>5 days ago</td><td><span class="status-pill bad">Expired</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Marketing Budget Draft.xlsx</div></td><td>Finance / Budgets</td><td>220 KB</td><td>1 week ago</td><td><span class="status-pill wait">Draft</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Lease Renewal — HQ.pdf</div></td><td>Facilities</td><td>1.6 MB</td><td>2 weeks ago</td><td><span class="status-pill ok">Signed</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+    
+<div class="dash-view" data-view="shared">
+  <h3 style="font-size:1.4rem;font-family:var(--serif);margin-bottom:20px;">Shared with me</h3>
+  <div class="panel">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Shared by</th><th>Access</th><th>Shared</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Onboarding Kit.zip</div></td><td>Priya Anand</td><td><span class="status-pill wait">View only</span></td><td>Yesterday</td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Brand Guidelines v3.pdf</div></td><td>Devon Marsh</td><td><span class="status-pill ok">Can comment</span></td><td>4 days ago</td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>Vendor Master List.xlsx</div></td><td>Finance Team</td><td><span class="status-pill wait">View only</span></td><td>1 week ago</td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+    
+<div class="dash-view" data-view="signatures">
+  <h3 style="font-size:1.4rem;font-family:var(--serif);margin-bottom:20px;">Signatures</h3>
+  <div class="kpi-row" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:24px;">
+    <div class="kpi-card"><b>3</b><span>Awaiting your signature</span></div>
+    <div class="kpi-card"><b>8</b><span>Awaiting others</span></div>
+    <div class="kpi-card"><b>142</b><span>Completed this year</span></div>
+  </div>
+  <div class="panel">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Document</th><th>Counterparty</th><th>Sent</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M3 17s2-1 4-1 3 1 5 1 3-1 5-1 4 1 4 1M4 13l9-9 3 3-9 9-4 1 1-4Z"/></svg></div>NDA — Cascade Realty.docx</div></td><td>Cascade Realty</td><td>Yesterday</td><td><span class="status-pill wait">Awaiting you</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M3 17s2-1 4-1 3 1 5 1 3-1 5-1 4 1 4 1M4 13l9-9 3 3-9 9-4 1 1-4Z"/></svg></div>Master Services Agreement.pdf</div></td><td>Loop Logistics</td><td>3 days ago</td><td><span class="status-pill wait">Awaiting counterparty</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+          <tr><td><div class="row-file"><div class="f-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M3 17s2-1 4-1 3 1 5 1 3-1 5-1 4 1 4 1M4 13l9-9 3 3-9 9-4 1 1-4Z"/></svg></div>Q3 Vendor Agreement.pdf</div></td><td>Amber &amp; Voss</td><td>1 week ago</td><td><span class="status-pill ok">Completed</span></td><td class="row-actions"><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button><button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg></button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+    
+<div class="dash-view" data-view="activity">
+  <h3 style="font-size:1.4rem;font-family:var(--serif);margin-bottom:20px;">Activity</h3>
+  <div class="panel">
+    <div class="activity-item"><div class="a-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M3 17s2-1 4-1 3 1 5 1 3-1 5-1 4 1 4 1M4 13l9-9 3 3-9 9-4 1 1-4Z"/></svg></div><div><p>You signed <b>Q3 Vendor Agreement.pdf</b></p><span>Today, 10:42 AM</span></div></div>
+    <div class="activity-item"><div class="a-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-3.9M8.6 13.5l6.8 3.9"/></svg></div><div><p>Priya Anand shared <b>Onboarding Kit.zip</b> with you</p><span>Yesterday, 4:15 PM</span></div></div>
+    <div class="activity-item"><div class="a-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></div><div><p>You uploaded 4 files to <b>Contracts / 2026</b></p><span>Mon, 9:03 AM</span></div></div>
+    <div class="activity-item"><div class="a-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div><div><p><b>Insurance Claim — 0092.pdf</b> expired and moved to archive</p><span>Last Friday</span></div></div>
+    <div class="activity-item"><div class="a-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></div><div><p>You updated notification preferences</p><span>2 weeks ago</span></div></div>
+  </div>
+</div>
+
+    
+<div class="dash-view" data-view="settings">
+  <h3 style="font-size:1.4rem;font-family:var(--serif);margin-bottom:20px;">Settings</h3>
+  <div class="dash-grid-2">
+    <div class="panel settings-form">
+      <div class="panel-head"><h3>Profile</h3></div>
+      <div class="field"><label>Full name</label><input type="text" data-user-name-input value="Alex Morgan"></div>
+      <div class="field"><label>Email</label><input type="email" data-user-email-input value="alex.morgan@stacklyvault.com"></div>
+      <div class="field"><label>Role</label><input type="text" value="Member" disabled></div>
+      <button class="btn btn-primary magnetic">Save changes</button>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Notifications</h3></div>
+      <div class="toggle-row"><div><p>Signature requests</p><span>Email me when a document needs my signature</span></div><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+      <div class="toggle-row"><div><p>Shared documents</p><span>Notify me when someone shares a file</span></div><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+      <div class="toggle-row"><div><p>Weekly digest</p><span>A summary of vault activity every Monday</span></div><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+      <div class="toggle-row"><div><p>Product updates</p><span>Occasional emails about new features</span></div><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:24px;">
+    <div class="info-row"><span>Plan</span><span>Team — $45/user/month</span></div>
+    <div class="info-row"><span>Member since</span><span>March 2024</span></div>
+    <div class="info-row"><span>Two-factor authentication</span><span style="color:var(--manila-2);">Enabled</span></div>
+  </div>
+</div>
+
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+/* ============================================================
+   STACKLY VAULT — shared interactions
+   GSAP + ScrollTrigger (gsap.com/Webflow-style motion patterns)
+   ============================================================ */
+gsap.registerPlugin(ScrollTrigger);
+
+/* ---------- tiny text splitter (no paid plugin dependency) ---------- */
+function splitWords(el){
+  const text = el.textContent.trim();
+  el.innerHTML = '';
+  const words = text.split(/\s+/);
+  words.forEach((w, i) => {
+    const span = document.createElement('span');
+    span.className = 'split-word';
+    span.style.display = 'inline-block';
+    span.textContent = w + (i < words.length - 1 ? '\u00A0' : '');
+    el.appendChild(span);
+  });
+  return el.querySelectorAll('.split-word');
+}
+
+function splitChars(el){
+  const text = el.textContent.trim();
+  el.innerHTML = '';
+  [...text].forEach(ch => {
+    const span = document.createElement('span');
+    span.className = 'split-char';
+    span.style.display = 'inline-block';
+    span.textContent = ch === ' ' ? '\u00A0' : ch;
+    el.appendChild(span);
+  });
+  return el.querySelectorAll('.split-char');
+}
+
+/* ============================================================
+   MAGNETIC BUTTONS
+   ============================================================ */
+function initMagnetic(){
+  document.querySelectorAll('.magnetic').forEach(el=>{
+    el.addEventListener('mousemove', e=>{
+      const r = el.getBoundingClientRect();
+      const x = e.clientX - r.left - r.width/2;
+      const y = e.clientY - r.top - r.height/2;
+      gsap.to(el, { x:x*0.28, y:y*0.35, duration:.4, ease:'power2.out' });
+    });
+    el.addEventListener('mouseleave', ()=> gsap.to(el, { x:0, y:0, duration:.5, ease:'elastic.out(1,0.4)' }));
+  });
+}
+
+/* ============================================================
+   NAV: scroll state + mobile toggle
+   ============================================================ */
+function initNav(){
+  const nav = document.querySelector('.site-nav');
+  if (nav){
+    ScrollTrigger.create({
+      start: 40, end: 99999,
+      onUpdate: self => nav.classList.toggle('scrolled', self.scroll() > 40)
+    });
+  }
+  const toggle = document.querySelector('.nav-toggle');
+  const links = document.querySelector('.nav-links');
+  if (toggle && links){
+    toggle.addEventListener('click', ()=>{
+      const open = links.classList.toggle('mobile-open');
+      if (open){
+        links.style.cssText = 'display:flex;flex-direction:column;position:fixed;top:86px;left:20px;right:20px;background:#FFFFFF;border:1px solid rgba(30,27,60,.12);border-radius:18px;padding:14px;gap:4px;z-index:999;box-shadow:0 20px 45px -20px rgba(30,27,60,.28);';
+      } else {
+        links.removeAttribute('style');
+      }
+    });
+    links.querySelectorAll('a').forEach(a => a.addEventListener('click', ()=>{
+      links.classList.remove('mobile-open'); links.removeAttribute('style');
+    }));
+  }
+}
+
+/* ============================================================
+   HERO ENTRANCE — redaction bar reveal (single orchestrated moment)
+   ============================================================ */
+function playHeroEntrance(){
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+  const lines = hero.querySelectorAll('.redact-line');
+  const tl = gsap.timeline({ defaults:{ ease:'power4.out' } });
+
+  lines.forEach((line, i) => {
+    const chars = splitWords(line);
+    const bar = document.createElement('div');
+    bar.style.cssText = 'position:absolute;inset:0;background:#4F46E5;transform-origin:left;z-index:2;';
+    line.style.position='relative';
+    line.appendChild(bar);
+    gsap.set(chars, { opacity:0, y: 26 });
+    tl.to(bar, { scaleX:1, duration:0, ease:'none' }, i*0.12)
+      .to(bar, { scaleX:0, transformOrigin:'right', duration:.6 }, i*0.12 + 0.35)
+      .to(chars, { opacity:1, y:0, duration:.7, stagger:0.03 }, i*0.12 + 0.32);
+    gsap.set(bar, { scaleX:1 });
+  });
+
+  tl.from('.doc-tape', { opacity:0, y:14, duration:.6 }, 0)
+    .from('.hero-copy p.lead', { opacity:0, y:18, duration:.7 }, 0.5)
+    .from('.hero-actions > *', { opacity:0, y:16, duration:.6, stagger:.1 }, 0.65)
+    .from('.hero-proof', { opacity:0, y:16, duration:.6 }, 0.8)
+    .from('.doc-card.c3', { opacity:0, x:40, rotate:8, duration:.9 }, 0.3)
+    .from('.doc-card.c1', { opacity:0, y:50, duration:.9 }, 0.42)
+    .from('.doc-card.c2', { opacity:0, y:40, x:-20, duration:.9 }, 0.54)
+    .from('.float-chip', { opacity:0, scale:.7, stagger:.12, duration:.6, ease:'back.out(2)' }, 0.9);
+
+  gsap.to('.doc-card.c1', { y: -14, duration: 3.2, repeat:-1, yoyo:true, ease:'sine.inOut', delay:1.6 });
+  gsap.to('.doc-card.c2', { y: 10, duration: 3.8, repeat:-1, yoyo:true, ease:'sine.inOut', delay:1.8 });
+  gsap.to('.doc-card.c3', { y: -10, rotate:2, duration:4.2, repeat:-1, yoyo:true, ease:'sine.inOut', delay:2 });
+  gsap.to('.float-chip.fc1', { y:-12, duration:2.6, repeat:-1, yoyo:true, ease:'sine.inOut' });
+  gsap.to('.float-chip.fc2', { y:10, duration:3, repeat:-1, yoyo:true, ease:'sine.inOut' });
+}
+
+/* ============================================================
+   PAGE HEADER ENTRANCE (non-home pages)
+   ============================================================ */
+function playPageHeaderEntrance(){
+  const head = document.querySelector('.page-hero');
+  if (!head) return;
+  const title = head.querySelector('h1');
+  if (!title) return;
+  const words = splitWords(title);
+  const bar = document.createElement('div');
+  bar.style.cssText = 'position:absolute;inset:0;background:#4F46E5;transform-origin:left;z-index:2;';
+  title.style.position='relative';
+  title.appendChild(bar);
+  gsap.set(words, { opacity:0, y:24 });
+  gsap.timeline({ defaults:{ ease:'power4.out' } })
+    .to(bar, { scaleX:0, transformOrigin:'right', duration:.65, delay:.15 })
+    .to(words, { opacity:1, y:0, stagger:.03, duration:.7 }, 0.42)
+    .from('.page-hero .eyebrow', { opacity:0, y:12, duration:.5 }, 0)
+    .from('.page-hero p.lead', { opacity:0, y:16, duration:.6 }, 0.6)
+    .from('.page-hero .breadcrumb', { opacity:0, duration:.5 }, 0);
+}
+
+/* ============================================================
+   SCROLL REVEALS
+   ============================================================ */
+function initScrollReveals(){
+  gsap.utils.toArray('.reveal').forEach((el, i) => {
+    ScrollTrigger.create({
+      trigger: el, start: 'top 86%',
+      onEnter: () => el.classList.add('in-view'),
+      once:true
+    });
+  });
+
+  gsap.utils.toArray('.stagger-group').forEach(group => {
+    const items = group.children;
+    gsap.from(items, {
+      opacity:0, y:30, duration:.7, stagger:0.09, ease:'power3.out',
+      scrollTrigger: { trigger: group, start:'top 85%' }
+    });
+  });
+
+  gsap.utils.toArray('.reveal-img').forEach(box => {
+    const curtain = box.querySelector('.curtain');
+    const img = box.querySelector('img');
+    if (!curtain) return;
+    gsap.timeline({ scrollTrigger:{ trigger: box, start:'top 82%' } })
+      .to(curtain, { scaleX:0, transformOrigin:'right', duration:.9, ease:'power4.inOut' })
+      .to(img, { scale:1, duration:1.2, ease:'power3.out' }, 0.05);
+  });
+
+  gsap.utils.toArray('[data-parallax]').forEach(el=>{
+    const amt = parseFloat(el.getAttribute('data-parallax')) || 40;
+    gsap.to(el, {
+      y: amt, ease:'none',
+      scrollTrigger: { trigger: el.closest('section') || el, start:'top bottom', end:'bottom top', scrub: 0.6 }
+    });
+  });
+
+  gsap.utils.toArray('.section-head h2, .cta-band h2').forEach(h => {
+    if (h.closest('.hero') || h.closest('.page-hero')) return;
+    const words = splitWords(h);
+    gsap.from(words, {
+      opacity:0, y:22, stagger:0.025, duration:.7, ease:'power3.out',
+      scrollTrigger: { trigger: h, start:'top 88%' }
+    });
+  });
+}
+
+/* ============================================================
+   COUNTERS
+   ============================================================ */
+function initCounters(){
+  gsap.utils.toArray('[data-count]').forEach(el=>{
+    const target = parseFloat(el.getAttribute('data-count'));
+    const decimals = (el.getAttribute('data-count').split('.')[1] || '').length;
+    const suffix = el.getAttribute('data-suffix') || '';
+    const state = { v: 0 };
+    ScrollTrigger.create({
+      trigger: el, start:'top 90%', once:true,
+      onEnter(){
+        gsap.to(state, {
+          v: target, duration: 1.8, ease:'power2.out',
+          onUpdate(){ el.textContent = state.v.toFixed(decimals) + suffix; }
+        });
+      }
+    });
+  });
+}
+
+/* ============================================================
+   MARQUEE
+   ============================================================ */
+function initMarquee(){
+  document.querySelectorAll('.marquee-track').forEach(track=>{
+    track.innerHTML += track.innerHTML;
+    gsap.to(track, { xPercent: -50, duration: 26, ease:'none', repeat:-1 });
+  });
+}
+
+/* ============================================================
+   FAQ ACCORDION
+   ============================================================ */
+function initFaq(){
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    const answer = item.querySelector('.faq-a');
+    item.addEventListener('click', ()=>{
+      const isOpen = item.classList.contains('open');
+      item.closest('.faq-list').querySelectorAll('.faq-item').forEach(other=>{
+        other.classList.remove('open');
+        other.querySelector('.faq-a').style.maxHeight = null;
+      });
+      if (!isOpen){
+        item.classList.add('open');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+      }
+    });
+  });
+}
+
+/* ============================================================
+   INIT ALL (call from each page)
+   ============================================================ */
+function stacklyInit(opts = {}){
+  document.querySelectorAll('.grid-field').forEach(initGridField);
+  initNav();
+  initMagnetic();
+  initFaq();
+  initMarquee();
+
+  if (opts.hero) playHeroEntrance();
+  if (opts.pageHeader) playPageHeaderEntrance();
+  initScrollReveals();
+  initCounters();
+  ScrollTrigger.refresh();
+  if (typeof opts.after === 'function') opts.after();
+}
+
+/* ============================================================
+   DASHBOARD SIDEBAR (shared by admin/user dashboards)
+   ============================================================ */
+function initDashSidebar(){
+  const sidebar = document.querySelector('.dash-sidebar');
+  const openBtn = document.querySelector('.sidebar-open');
+  const closeBtn = document.querySelector('.sidebar-close');
+  const scrim = document.querySelector('.dash-scrim');
+  function open(){ sidebar.classList.add('open'); scrim && scrim.classList.add('show'); }
+  function close(){ sidebar.classList.remove('open'); scrim && scrim.classList.remove('show'); }
+  openBtn && openBtn.addEventListener('click', open);
+  closeBtn && closeBtn.addEventListener('click', close);
+  scrim && scrim.addEventListener('click', close);
+}
+
+function initDashViews(storageKey){
+  const links = document.querySelectorAll('[data-view]');
+  const views = document.querySelectorAll('.dash-view');
+  function show(name){
+    views.forEach(v => v.classList.toggle('active', v.dataset.view === name));
+    links.forEach(l => l.classList.toggle('active', l.dataset.view === name));
+    try{ localStorage.setItem(storageKey, name); }catch(e){}
+    const sidebar = document.querySelector('.dash-sidebar');
+    const scrim = document.querySelector('.dash-scrim');
+    if (window.innerWidth <= 1024 && sidebar){ sidebar.classList.remove('open'); scrim && scrim.classList.remove('show'); }
+  }
+  links.forEach(l => l.addEventListener('click', e=>{ e.preventDefault(); show(l.dataset.view); }));
+  let last = 'overview';
+  try{ last = localStorage.getItem(storageKey) || 'overview'; }catch(e){}
+  show(last);
+}
+
+function nameFromEmail(email){
+  if (!email) return '';
+  var local = String(email).split('@')[0];
+  return local.split(/[.\-_]+/).filter(Boolean)
+    .map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); })
+    .join(' ');
+}
+
+function loadSessionUser(){
+  let user = null;
+  try{ user = JSON.parse(localStorage.getItem('stackly_user')); }catch(e){}
+  if (!user){
+    user = { email:'alex.morgan@stacklyvault.com', role:'Member' };
+  }
+  user.name = nameFromEmail(user.email);
+  document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = user.name);
+  document.querySelectorAll('[data-user-email]').forEach(el => el.textContent = user.email);
+  document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = user.role || 'Member');
+  document.querySelectorAll('[data-user-first]').forEach(el => el.textContent = (user.name||'').split(' ')[0]);
+  return user;
+}
+
+/* ============================================================
+   TOASTS — shared popup/notification helper
+   stacklyToast(title, message, { type: 'success'|'error', duration: ms })
+   ============================================================ */
+function stacklyToast(title, message, opts = {}){
+  const type = opts.type || 'success';
+  const duration = opts.duration || 4200;
+
+  let host = document.getElementById('stacklyToasts');
+  if (!host){
+    host = document.createElement('div');
+    host.id = 'stacklyToasts';
+    document.body.appendChild(host);
+  }
+
+  const el = document.createElement('div');
+  el.className = 'stackly-toast' + (type === 'error' ? ' error' : '');
+  el.innerHTML =
+    '<span class="toast-icon">' + (type === 'error' ? '!' : '\u2713') + '</span>' +
+    '<div class="toast-body">' +
+      '<div class="toast-title"></div>' +
+      (message ? '<div class="toast-msg"></div>' : '') +
+    '</div>' +
+    '<button type="button" class="toast-close" aria-label="Dismiss">&times;</button>';
+  el.querySelector('.toast-title').textContent = title;
+  if (message) el.querySelector('.toast-msg').textContent = message;
+
+  host.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+
+  function dismiss(){
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 350);
+  }
+  el.querySelector('.toast-close').addEventListener('click', dismiss);
+  const timer = setTimeout(dismiss, duration);
+  el.addEventListener('mouseenter', () => clearTimeout(timer));
+
+  return el;
+}
+</script>
+<script>
+
+gsap.registerPlugin(ScrollTrigger);
+initScrollReveals();
+initCounters();
+ScrollTrigger.refresh();
+initMagnetic();
+initDashSidebar();
+initDashViews('stackly_user_active_view');
+var sessionUser = loadSessionUser();
+var nameInput = document.querySelector('[data-user-name-input]');
+var emailInput = document.querySelector('[data-user-email-input]');
+if(nameInput) nameInput.value = sessionUser.name;
+if(emailInput) emailInput.value = sessionUser.email;
+
+/* simple bar chart: storage growth */
+(function(){
+  var box = document.getElementById('storageChart');
+  if(!box) return;
+  var data = [12,18,22,27,33,38];
+  var months = ['Mar','Apr','May','Jun','Jul','Aug'];
+  var max = Math.max.apply(null, data);
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;align-items:flex-end;gap:14px;height:100%;padding-top:10px;';
+  data.forEach(function(v, i){
+    var col = document.createElement('div');
+    col.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end;';
+    var bar = document.createElement('div');
+    bar.style.cssText = 'width:100%;max-width:34px;background:linear-gradient(180deg,#6D5EF5,#4F46E5);border-radius:6px 6px 0 0;height:0%;';
+    var label = document.createElement('span');
+    label.textContent = months[i];
+    label.style.cssText = 'font-size:.72rem;color:#6B7280;';
+    col.appendChild(bar); col.appendChild(label);
+    wrap.appendChild(col);
+    gsap.to(bar, { height: (v/max*100)+'%', duration:1.1, delay: i*0.08, ease:'power3.out', scrollTrigger:{ trigger: box, start:'top 85%' } });
+  });
+  box.appendChild(wrap);
+})();
+
+/* simple donut: document types */
+(function(){
+  var box = document.getElementById('typeDonut');
+  if(!box) return;
+  var seg = [
+    {label:'Contracts', val:44, color:'#4F46E5'},
+    {label:'Invoices', val:26, color:'#6D5EF5'},
+    {label:'HR records', val:18, color:'#9CA3AF'},
+    {label:'Other', val:12, color:'#E7E1F6'}
+  ];
+  var total = 0; var r = 52; var circ = 2*Math.PI*r;
+  var svgParts = '';
+  var offset = 0;
+  seg.forEach(function(s){
+    var len = circ * (s.val/100);
+    svgParts += '<circle cx="70" cy="70" r="'+r+'" fill="none" stroke="'+s.color+'" stroke-width="16" stroke-dasharray="'+len+' '+(circ-len)+'" stroke-dashoffset="'+(-offset)+'" />';
+    offset += len;
+  });
+  box.innerHTML = '<svg width="140" height="140" viewBox="0 0 140 140" style="transform:rotate(-90deg);">'+svgParts+'</svg>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">' +
+    seg.map(function(s){ return '<span style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#6B7280;"><span style="width:8px;height:8px;border-radius:50%;background:'+s.color+';display:inline-block;"></span>'+s.label+' '+s.val+'%</span>'; }).join('') +
+    '</div>';
+})();
+
+</script>
+</body>
+</html>
