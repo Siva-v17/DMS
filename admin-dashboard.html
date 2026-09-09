@@ -181,6 +181,7 @@ p{ margin:0; }
   width:264px; flex:none; background:var(--surface);
   border-right:1px solid var(--line); display:flex; flex-direction:column;
   padding:24px 18px; position:sticky; top:0; height:100vh; z-index:40;
+  overflow-y:auto; overflow-x:hidden;
 }
 .sidebar-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; }
 .sidebar-head .logo img{ height:70px; width:auto; }
@@ -207,7 +208,7 @@ p{ margin:0; }
 .dash-nav a.active{ background:var(--manila); color:var(--on-accent); }
 .dash-nav a.active svg{ opacity:1; }
 
-.sidebar-foot{ padding-top:16px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:14px; }
+.sidebar-foot{ padding-top:16px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:14px; flex:none; }
 .storage-meter .bar{ height:6px; border-radius:99px; background:var(--surface-3); margin:6px 0; overflow:hidden; }
 .storage-meter .bar span{ display:block; height:100%; background:var(--manila); border-radius:99px; }
 .logout-link{ display:flex; align-items:center; gap:10px; color:var(--slate); font-weight:600; font-size:.9rem; }
