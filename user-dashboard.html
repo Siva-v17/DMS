@@ -189,7 +189,7 @@ input, select, textarea{ font-family:inherit; }
 
 /* ---- kpi cards ---- */
 .kpi-row{
-  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-bottom:24px;
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-bottom:36px;
   align-items:stretch; /* force every card in the row to match the tallest one */
 }
 .kpi-card{
@@ -742,7 +742,7 @@ function initScrollReveals(){
   gsap.utils.toArray('.stagger-group').forEach(group => {
     const items = group.children;
     gsap.from(items, {
-      opacity:0, y:30, duration:.7, stagger:0.09, ease:'power3.out',
+      opacity:0, y:14, duration:.6, stagger:0.07, ease:'power3.out',
       scrollTrigger: { trigger: group, start:'top 85%' }
     });
   });
