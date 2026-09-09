@@ -474,6 +474,36 @@ section.tight{ padding: 88px 0; }
 .info-card:first-child{ border-top:none; }
 .info-card .ic{ width:44px; height:44px; border-radius:12px; background:var(--surface-2); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--manila); flex-shrink:0; }
 
+.contact-map{
+  margin-top:28px;
+  border-radius: var(--radius-l);
+  overflow:hidden;
+  border:1px solid var(--line);
+  box-shadow: var(--shadow-card);
+  position:relative;
+  background: var(--surface-2);
+}
+.contact-map iframe{
+  display:block; width:100%; height:280px; border:0; filter: grayscale(.15) contrast(1.02);
+}
+.contact-map .map-pin-note{
+  position:absolute; left:16px; bottom:16px; z-index:2;
+  display:flex; align-items:center; gap:10px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border:1px solid var(--line);
+  border-radius: 999px;
+  padding:9px 16px 9px 10px;
+  box-shadow: var(--shadow-card);
+  pointer-events:none;
+}
+.contact-map .map-pin-note .dot{
+  width:26px; height:26px; border-radius:50%; background:var(--manila); color:#fff;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.contact-map .map-pin-note span{ font-size:.82rem; font-weight:600; color:var(--ink); white-space:nowrap; }
+
 /* footer — dark "vault door" plate: the one place the paper site goes to ink */
 footer{ background: var(--ink); color: rgba(255,255,255,.7); padding: 80px 0 0; position:relative; overflow:hidden; }
 footer::before{ content:''; position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, transparent, var(--manila-2), transparent); }
@@ -884,15 +914,23 @@ table.data-table{ width:100%; border-collapse:collapse; min-width:640px; }
         </div>
         <div class="info-card">
           <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.7a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2Z"/></svg></div>
-          <div><b style="display:block;">Phone</b><span class="muted">+1 (415) 555-0148</span></div>
+          <div><b style="display:block;">Phone</b><span class="muted">+91 9876543210</span></div>
         </div>
         <div class="info-card">
           <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4.5 8-11a8 8 0 1 0-16 0c0 6.5 8 11 8 11Z"/><circle cx="12" cy="11" r="3"/></svg></div>
-          <div><b style="display:block;">Office</b><span class="muted">180 Ledger Street, San Francisco, CA</span></div>
+          <div><b style="display:block;">Office</b><span class="muted">MMR Complex, Salem, Tamil Nadu</span></div>
         </div>
         <div class="info-card">
           <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
           <div><b style="display:block;">Support hours</b><span class="muted">Mon–Fri, 6am–6pm PT</span></div>
+        </div>
+      </div>
+
+      <div class="contact-map">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3907.455055840177!2d78.15613697429937!3d11.662127842234353!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3babf1cb059773db%3A0x2bc233b74cca2bda!2sMMR%20Complex!5e0!3m2!1sen!2sin!4v1788930226614!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <div class="map-pin-note">
+          <span class="dot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4.5 8-11a8 8 0 1 0-16 0c0 6.5 8 11 8 11Z"/><circle cx="12" cy="11" r="3"/></svg></span>
+          <span>MMR Complex, Salem</span>
         </div>
       </div>
     </div>
